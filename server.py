@@ -11,7 +11,10 @@ def process_form():
     if request.method == "POST":
         data = {key:value for key, value in request.form.items()} # convert ImmutableMultiDict
         # Stubbed function #1
-        save_form_to_db(data)
+        if save_form_to_db(data):
+            pass
+        else:
+            return "Invalid email address"
 
     # Just grab the last record from the db and display that
     last_person = mongo.db.data.find(sort=[('$natural',-1)], limit=1).next()
@@ -31,11 +34,30 @@ def save_form_to_db(data):
     # assume that `mongo` has already been defined as `mongo = PyMongo(app)`
     pass
 
+    if validate_email(data['email_address']):
+        print "Valid email"
+        mongo.db.data.insert_one(data)
+        return True
+    else:
+        print "Invalid Email"
+        return False
 
-# Stub #2
-def validate_email(email_string):
-    # return a boolean indicating whether the email is a valid email string
-    pass
+
+#CrowdFlower response 825646388
+def validate_email(email):
+   #simple email validator
+   #checks if there is @ character in email
+   #domain part of email need to have at least one dot
+
+   email_split = email.split('@')
+   #email_split = email.split(sep='@')  # Works in python 3, not python 2 - oops!
+   if len(email_split) == 1:
+       return False
+   valid = False
+   if email_split[-1].find('.') >= 0:
+       valid = True
+
+   return valid
 
 
 if __name__ == '__main__':
